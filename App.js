@@ -4,61 +4,73 @@ import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import RadioForm from 'react-native-simple-radio-button';
 
 const App = () => {
-  const [gender, setGender] = useState('male');
-  const [weight, setWeight] = useState('80');
-  const [activity, setActivity] = useState('2.0');
-  const [calories, setCalories] = useState('');
+    const [weight, setWeight] = useState(0);
+    const [gender, setGender] = useState('male');
+    const [intensity, setIntensity] = useState('1.3');
+    const [calories, setCalories] = useState(0);
 
-  const calculateCalories = () => {
-    const m = parseFloat(weight);
-    const k = parseFloat(activity);
-    if (!isNaN(m) && !isNaN(k)) {
-      const calorieFormula =
-        gender === 'male' ? (879 + 10.2 * m) * k : (795 + 7.18 * m) * k;
-      setCalories(calorieFormula.toFixed(0));
-    } else {
-      setCalories('');
+    const intensities =Array();
+    intensities.push({label: 'light',value: 1.3});
+    intensities.push({label: 'usual',value: 1.5});
+    intensities.push({label: 'moderate',value: 1.7});
+    intensities.push({label: 'hard',value: 2});
+    intensities.push({label: 'very hard',value: 2.2});
+
+    const genders = [
+        {label: 'Male', value: 'male'},
+        {label: 'Female', value: 'female'},
+    ]
+
+    function calculate() {
+        let result = 0;
+        if (gender === 'male') {
+            result = (879 + 10.2 * weight) * intensity;
+        } else {
+            result = (795 + 7.18 * weight) * intensity;
+        }
+        setCalories(result); 
     }
-  };
 
-  const radioProps = [
+  const radio = [
     { label: 'Male', value: 'male' },
     { label: 'Female', value: 'female' },
   ];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Weight</Text>
-      <TextInput
-        placeholder="Enter weight"
-        value={weight}
-        onChangeText={(text) => setWeight(text)}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-      <Text style={styles.label}>Intensity</Text>
-      <Picker
-        selectedValue={activity}
-        onValueChange={(itemValue) => setActivity(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Light" value="1.3" />
-        <Picker.Item label="Usual" value="1.5" />
-        <Picker.Item label="Moderate" value="1.7" />
-        <Picker.Item label="Hard" value="2.0" />
-        <Picker.Item label="Very Hard" value="2.2" />
-      </Picker>
-      <Text style={styles.label}>Gender</Text>
-      <RadioForm
-        radio_props={radioProps}
-        initial={0}
-        onPress={(value) => setGender(value)}
-        formHorizontal={false}
-        labelStyle={styles.radioLabel}
-        buttonSize={10}
-      />
-      <Text style={styles.result}>{calories ? calories : ''}</Text>
-      <Button title="CALCULATE" onPress={calculateCalories} />
+      <View style={styles.field}>
+        <Text> Weight</Text>
+        <TextInput
+            placeholder="in kilograms"
+            value={weight.toString()}  // Convert to string
+            onChangeText={text => setWeight(text)}
+            keyboardType="numeric"
+            style={styles.input}
+            />
+      </View>
+      <View style={styles.field}>
+        <Text >Intensity</Text>
+        <Picker style={styles.intensity}
+            onValueChange={(itemValue) => setIntensity(itemValue)}
+            selectedValue={intensity}
+        >
+          {intensities.map((intensity,index)=>(
+            <Picker.Item key={index} label={intensity.label} value={intensity.value}/>
+          ))}
+        </Picker>
+      </View>
+      <View style={styles.field}>
+        <Text >Gender</Text>
+        <RadioForm
+            style={styles.radio}
+            buttonSize = {10}
+            radio_props={genders}
+            initial={0}
+            onPress={(value) => {setGender(value)}}
+        />
+        <Text>{calories.toFixed(0)}</Text>
+      </View>
+      <Button onPress={calculate} title="Calculate"></Button>
     </View>
   );
 };
@@ -66,36 +78,18 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingTop:30,
   },
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  picker: {
-    width: 200,
-    marginBottom: 10,
+  field: {
+    margin: 10,
   },
   input: {
-    borderWidth: 1,
-    padding: 10,
-    width: 200,
+    marginLeft: 10,
+  },
+  radio: {
+    marginTop: 10,
     marginBottom: 10,
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  radioLabel: {
-    marginRight: 15,
-  },
-  result: {
-    fontSize: 20,
-    marginTop: 20,
-    fontWeight: 'bold',
-  },
+  }
 });
 
 export default App;
